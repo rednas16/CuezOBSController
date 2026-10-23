@@ -1,0 +1,23 @@
+# Run the app in Docker while OBS Studio runs on your own machine.
+#
+#   cp .env.example .env     # fill in OBS_WS_PASSWORD
+#   docker compose up --build
+#
+# Then open http://localhost:3000
+services:
+  obs-controller:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      # Inside a container "localhost" is the container itself, not your
+      # computer. Docker provides "host.docker.internal" as the address of
+      # the machine running Docker, which is where OBS is.
+      OBS_WS_URL: ${OBS_WS_URL:-ws://host.docker.internal:4455}
+      OBS_WS_PASSWORD: ${OBS_WS_PASSWORD:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    # On Linux "host.docker.internal" does not exist by default; this line
+    # adds it. On macOS and Windows it is harmless.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: unless-stopped
