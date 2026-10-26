@@ -1,1 +1,41 @@
 @import 'tailwindcss';
+
+/*
+ * Design tokens. Tailwind 4 turns every --color-* into utility classes
+ * (bg-surface, text-muted, border-line, ...), so the components never
+ * contain raw hex values and the palette lives in one place.
+ */
+@theme {
+	--font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	--color-bg: #0f1115;
+	--color-surface: #171a21;
+	--color-surface-2: #1f2531;
+	--color-line: #262b35;
+	--color-line-strong: #2f3645;
+	--color-text: #e8eaf0;
+	--color-text-soft: #c9d0db;
+	--color-muted: #9aa3b2;
+	--color-dim: #6b7383;
+
+	--color-rec: #e5484d;
+	--color-rec-soft: #ff8a8e;
+	--color-rec-bg: #1c1618;
+	--color-rec-line: #5a2327;
+
+	--color-ok: #30a46c;
+	--color-ok-soft: #8fe0b4;
+	--color-ok-bg: #14241c;
+	--color-ok-line: #1f4a33;
+
+	--color-live: #8fb3ff;
+	--color-live-bg: #16213a;
+	--color-live-line: #3b5ba5;
+}
+
+html {
+	background: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+}

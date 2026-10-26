@@ -1,50 +1,40 @@
 <script lang="ts">
-	// Temporary page to exercise the store. The real UI comes in the next step.
+	/**
+	 * The one and only page. It connects the store when it appears and lets
+	 * the components render from it. On a phone the two columns stack.
+	 */
 	import { onMount, onDestroy } from 'svelte';
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import Header from '#lib/components/Header.svelte';
+	import ConnectionBanner from '#lib/components/ConnectionBanner.svelte';
+	import RecordingCard from '#lib/components/RecordingCard.svelte';
+	import ScenesPanel from '#lib/components/ScenesPanel.svelte';
+	import ActivityLog from '#lib/components/ActivityLog.svelte';
+	import Toast from '#lib/components/Toast.svelte';
 
 	onMount(() => obs.connect());
 	onDestroy(() => obs.disconnect());
 </script>
 
-<main class="min-h-screen bg-[#0F1115] p-8 font-mono text-sm text-[#E8EAF0]">
-	<h1 class="mb-4 text-2xl font-semibold">OBS Controller</h1>
+<svelte:head>
+	<title>OBS Controller</title>
+</svelte:head>
 
-	<p>stream: {obs.stream} · OBS: {obs.state.connection} {obs.state.obsVersion ?? ''}</p>
-	<p>scene: {obs.state.currentScene} · scenes: {obs.state.scenes.join(', ')}</p>
-	<p>
-		recording: {obs.isRecording ? 'yes' : 'no'}
-		{obs.state.recording.timecode} · {obs.state.recording.outputPath ?? '-'}
-	</p>
+<div class="flex min-h-screen flex-col bg-bg text-text">
+	<Header />
+	<ConnectionBanner />
 
-	<div class="my-4 flex gap-2">
-		<button
-			class="rounded bg-red-600 px-3 py-2 disabled:opacity-40"
-			disabled={!obs.canStart}
-			onclick={() => obs.startRecording()}>Start</button
-		>
-		<button
-			class="rounded bg-neutral-200 px-3 py-2 text-black disabled:opacity-40"
-			disabled={!obs.canStop}
-			onclick={() => obs.stopRecording()}>Stop</button
-		>
-		{#each obs.state.scenes as scene (scene)}
-			<button
-				class="rounded border border-neutral-600 px-3 py-2 disabled:opacity-40"
-				class:bg-blue-900={scene === obs.state.currentScene}
-				disabled={!obs.canSwitchScene}
-				onclick={() => obs.setScene(scene)}>{scene}</button
-			>
-		{/each}
-	</div>
+	<main class="mx-auto flex w-full max-w-7xl flex-1 flex-wrap content-start gap-6 p-4 sm:p-8">
+		<div class="min-w-0 flex-[999_1_560px]">
+			<RecordingCard />
+		</div>
+		<div class="min-w-0 flex-[1_1_320px]">
+			<ScenesPanel />
+		</div>
+		<div class="flex-[1_1_100%]">
+			<ActivityLog />
+		</div>
+	</main>
 
-	{#if obs.error}
-		<p class="text-red-400">{obs.error.code}: {obs.error.message}</p>
-	{/if}
-
-	<ul class="mt-4 text-neutral-400">
-		{#each obs.activity as entry (entry.at + entry.message)}
-			<li>{entry.at.slice(11, 19)} {entry.message}</li>
-		{/each}
-	</ul>
-</main>
+	<Toast />
+</div>
