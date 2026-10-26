@@ -1,5 +1,7 @@
 # OBS Controller
 
+[![CI](https://github.com/rednas16/CuezOBSController/actions/workflows/ci.yml/badge.svg)](https://github.com/rednas16/CuezOBSController/actions/workflows/ci.yml)
+
 A small web app that remote-controls [OBS Studio](https://obsproject.com): start and stop recordings,
 switch scenes, and watch the recording status update live.
 
