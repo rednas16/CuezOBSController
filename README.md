@@ -31,6 +31,8 @@ Extras beyond the assignment:
   browser store
 - **End-to-end tests** (Playwright) against a fake OBS, so they run without OBS and in CI
 - **GitHub Actions CI**: lint, type-check, unit tests, build, e2e tests and Docker build on every push
+- **Runs locally and in Docker from the same `.env`**: `npm run dev` for development with hot
+  reload, `docker compose up` for a production build; both reach the same OBS
 - Activity log of recent events, timecode in the browser tab title while recording, reduced-motion
   support, responsive layout for phones
 
