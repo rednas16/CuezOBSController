@@ -7,6 +7,7 @@
 	 * removed or renamed there.
 	 */
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { t } from '#lib/i18n/index.svelte.ts';
 
 	const scenes = $derived(obs.state.scenes);
 	const current = $derived(obs.state.currentScene);
@@ -19,11 +20,13 @@
 
 <aside class="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6 sm:p-7">
 	<div class="flex items-center justify-between gap-3">
-		<h2 class="text-[13px] font-semibold tracking-wider text-muted uppercase">Scenes</h2>
-		<span class="text-xs text-dim">{scenes.length} available</span>
+		<h2 class="text-[13px] font-semibold tracking-wider text-muted uppercase">
+			{t('scenes.title')}
+		</h2>
+		<span class="text-xs text-dim">{t('scenes.available', { n: scenes.length })}</span>
 	</div>
 
-	<label for="scene-select" class="text-xs text-muted">Program scene</label>
+	<label for="scene-select" class="text-xs text-muted">{t('scenes.program')}</label>
 	<div class="relative -mt-2">
 		<select
 			id="scene-select"
@@ -34,7 +37,7 @@
 			onchange={onSelect}
 		>
 			{#if scenes.length === 0}
-				<option value="">No scenes</option>
+				<option value="">{t('scenes.none')}</option>
 			{/if}
 			{#each scenes as scene (scene)}
 				<option value={scene}>{scene}</option>
@@ -72,11 +75,11 @@
 			>
 				<span class="truncate">{scene}</span>
 				{#if active}
-					<span class="text-[11px] tracking-wider text-live">LIVE</span>
+					<span class="text-[11px] tracking-wider text-live">{t('scenes.live')}</span>
 				{/if}
 			</button>
 		{/each}
 	</div>
 
-	<p class="mt-1 text-xs leading-relaxed text-dim">List updates live when scenes change in OBS.</p>
+	<p class="mt-1 text-xs leading-relaxed text-dim">{t('scenes.hint')}</p>
 </aside>

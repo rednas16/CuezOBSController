@@ -4,17 +4,18 @@
 	 * confirmations (e.g. "Switched to Intro") that disappear by themselves.
 	 */
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { t } from '#lib/i18n/index.svelte.ts';
 
 	let notice = $state<string | null>(null);
 	let timer: ReturnType<typeof setTimeout> | undefined;
 
-	// Confirm scene switches: show a notice whenever the current scene changes
-	// after the first load.
-	let lastScene = $state<string | null | undefined>(undefined);
+	// Confirm scene switches: show a notice when the current scene changes from
+	// one known scene to another. The first scene we learn about is not a switch.
+	let lastScene = $state<string | null>(null);
 	$effect(() => {
 		const scene = obs.state.currentScene;
-		if (lastScene !== undefined && scene && scene !== lastScene) {
-			notice = `Switched to ${scene}`;
+		if (lastScene && scene && scene !== lastScene) {
+			notice = t('toast.switched', { scene });
 			clearTimeout(timer);
 			timer = setTimeout(() => (notice = null), 3000);
 		}
@@ -31,13 +32,13 @@
 			class="pointer-events-auto flex max-w-sm items-start gap-3 rounded-xl border border-rec-line bg-rec-bg px-4 py-3 text-[13px] text-[#FFD3D5] shadow-2xl"
 		>
 			<span class="flex-1">
-				<strong class="font-semibold">{obs.error.code.replaceAll('_', ' ')}</strong>
-				<br />{obs.error.message}
+				<strong class="font-semibold">{t(`error.${obs.error.code}`)}</strong>
+				<br /><span class="text-[#E0A3A6]">{obs.error.message}</span>
 			</span>
 			<button
 				type="button"
 				class="-m-1 rounded p-1 text-rec-soft hover:text-white"
-				aria-label="Dismiss"
+				aria-label={t('toast.dismiss')}
 				onclick={() => obs.clearError()}
 			>
 				<svg

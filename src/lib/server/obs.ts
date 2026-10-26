@@ -21,7 +21,7 @@ import OBSWebSocket from 'obs-websocket-js';
 import { config } from './config';
 import { log } from './logger';
 import { ObsError, toObsError } from './errors';
-import type { ActivityEntry, ObsState } from '#lib/types.ts';
+import type { ActivityEntry, ActivityKind, ConnectionErrorKind, ObsState } from '#lib/types.ts';
 
 // ---------------------------------------------------------------------------
 // State
@@ -35,6 +35,7 @@ const state: ObsState = {
 	obsVersion: null,
 	obsUrl: config.obsUrl,
 	connectionError: null,
+	connectionErrorKind: null,
 	recording: {
 		active: false,
 		paused: false,
@@ -66,8 +67,13 @@ function publish() {
 }
 
 /** Add a line to the activity log and tell listeners about it. */
-function addActivity(level: ActivityEntry['level'], message: string) {
-	const entry: ActivityEntry = { at: new Date().toISOString(), level, message };
+function addActivity(
+	level: ActivityEntry['level'],
+	kind: ActivityKind,
+	params: Record<string, string>,
+	message: string
+) {
+	const entry: ActivityEntry = { at: new Date().toISOString(), level, kind, params, message };
 	activity.push(entry);
 	if (activity.length > MAX_ACTIVITY) activity.shift();
 	events.emit('activity', entry);
@@ -111,13 +117,20 @@ async function connect() {
 		reconnectAttempt = 0;
 		state.connection = 'connected';
 		state.connectionError = null;
+		state.connectionErrorKind = null;
 		publish();
-		addActivity('info', `Connected to OBS ${state.obsVersion}`);
+		addActivity(
+			'info',
+			'connected',
+			{ version: state.obsVersion ?? '' },
+			`Connected to OBS ${state.obsVersion}`
+		);
 		log.info({ version: state.obsVersion }, 'connected to OBS');
 	} catch (err) {
-		const message = describeConnectError(err);
+		const { kind, message } = describeConnectError(err);
 		state.connection = 'disconnected';
 		state.connectionError = message;
+		state.connectionErrorKind = kind;
 		publish();
 		log.warn({ err: message, attempt: reconnectAttempt }, 'could not connect to OBS');
 		scheduleReconnect();
@@ -149,17 +162,20 @@ function scheduleReconnect() {
 	}, delay);
 }
 
-/** Make connection errors readable for the person looking at the UI. */
-function describeConnectError(err: unknown): string {
+/** Classify connection errors so the UI can explain them in its own language. */
+function describeConnectError(err: unknown): { kind: ConnectionErrorKind; message: string } {
 	const message = err instanceof Error ? err.message : String(err);
 	// A refused connection arrives with an empty message or a network error code.
 	if (message === '' || /ECONNREFUSED|ENOTFOUND|EHOSTUNREACH|ETIMEDOUT/.test(message)) {
-		return `OBS is not reachable at ${config.obsUrl}. Is OBS running with the WebSocket server enabled?`;
+		return {
+			kind: 'unreachable',
+			message: `OBS is not reachable at ${config.obsUrl}. Is OBS running with the WebSocket server enabled?`
+		};
 	}
 	if (/auth/i.test(message)) {
-		return 'OBS rejected the password. Check OBS_WS_PASSWORD in .env.';
+		return { kind: 'auth', message: 'OBS rejected the password. Check OBS_WS_PASSWORD in .env.' };
 	}
-	return message;
+	return { kind: 'other', message };
 }
 
 // ---------------------------------------------------------------------------
@@ -174,9 +190,11 @@ function registerObsEventHandlers() {
 		if (state.connection !== 'connected') return;
 		state.connection = 'disconnected';
 		state.connectionError = 'Connection to OBS was lost. Reconnecting…';
+		state.connectionErrorKind = 'lost';
 		stopTimecodePolling();
 		publish();
-		addActivity('warn', `Connection lost (${err?.message ?? 'closed'})`);
+		const reason = err?.message ?? 'closed';
+		addActivity('warn', 'connection_lost', { reason }, `Connection lost (${reason})`);
 		log.warn({ err: err?.message }, 'OBS connection closed');
 		scheduleReconnect();
 	});
@@ -193,10 +211,12 @@ function registerObsEventHandlers() {
 
 		if (data.outputActive && !wasActive) {
 			startTimecodePolling();
-			addActivity('info', `Recording started · ${fileName(state.recording.outputPath)}`);
+			const file = fileName(state.recording.outputPath);
+			addActivity('info', 'recording_started', { file }, `Recording started · ${file}`);
 		} else if (!data.outputActive && wasActive) {
 			stopTimecodePolling();
-			addActivity('info', `Recording stopped · ${fileName(state.recording.outputPath)}`);
+			const file = fileName(state.recording.outputPath);
+			addActivity('info', 'recording_stopped', { file }, `Recording stopped · ${file}`);
 			state.recording.timecode = '';
 			state.recording.durationMs = 0;
 			state.recording.bytes = 0;
@@ -208,14 +228,19 @@ function registerObsEventHandlers() {
 	obs.on('CurrentProgramSceneChanged', (data) => {
 		state.currentScene = data.sceneName;
 		publish();
-		addActivity('info', `Scene changed to “${data.sceneName}”`);
+		addActivity(
+			'info',
+			'scene_changed',
+			{ scene: data.sceneName },
+			`Scene changed to “${data.sceneName}”`
+		);
 	});
 
 	// Scenes were added, removed, renamed or reordered in OBS.
 	obs.on('SceneListChanged', (data) => {
 		state.scenes = sceneNamesFrom(data.scenes);
 		publish();
-		addActivity('info', 'Scene list updated');
+		addActivity('info', 'scene_list_changed', {}, 'Scene list updated');
 	});
 }
 
@@ -228,7 +253,7 @@ function sceneNamesFrom(scenes: Array<Record<string, unknown>>): string[] {
 
 /** Just the file name part of a path, for log lines. */
 function fileName(path: string | null): string {
-	if (!path) return 'file name unknown';
+	if (!path) return '?';
 	return path.split(/[\\/]/).pop() ?? path;
 }
 

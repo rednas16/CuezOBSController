@@ -1,19 +1,20 @@
 <script lang="ts">
 	/**
-	 * Top bar: app name and the connection badge.
+	 * Top bar: app name, language switch and the connection badge.
 	 * The badge reflects two links: browser -> our server (stream) and
 	 * our server -> OBS (connection). Both must be up to be "Connected".
 	 */
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { i18n, t } from '#lib/i18n/index.svelte.ts';
 
 	const label = $derived(
 		obs.stream !== 'live'
-			? 'Server unreachable'
+			? t('status.serverUnreachable')
 			: obs.state.connection === 'connected'
-				? 'Connected'
+				? t('status.connected')
 				: obs.state.connection === 'connecting'
-					? 'Connecting…'
-					: 'Disconnected'
+					? t('status.connecting')
+					: t('status.disconnected')
 	);
 	const ok = $derived(obs.stream === 'live' && obs.connected);
 </script>
@@ -41,22 +42,34 @@
 			</svg>
 		</div>
 		<div class="flex flex-col">
-			<span class="text-[15px] font-semibold tracking-tight">OBS Controller</span>
-			<span class="text-xs text-muted">Studio remote</span>
+			<span class="text-[15px] font-semibold tracking-tight">{t('app.title')}</span>
+			<span class="text-xs text-muted">{t('app.subtitle')}</span>
 		</div>
 	</div>
 
-	<div
-		class="flex items-center gap-2.5 rounded-full border px-3.5 py-2 text-[13px]
-			{ok ? 'border-ok-line bg-ok-bg text-ok-soft' : 'border-rec-line bg-rec-bg text-rec-soft'}"
-		role="status"
-	>
-		<span class="size-2 rounded-full {ok ? 'bg-ok' : 'bg-rec'}"></span>
-		<span class="font-medium">{label}</span>
-		{#if ok}
-			<span class="hidden font-mono text-xs text-[#6FB58F] sm:inline">
-				OBS {obs.state.obsVersion} · {obs.state.obsUrl}
-			</span>
-		{/if}
+	<div class="flex items-center gap-3">
+		<button
+			type="button"
+			class="h-9 rounded-full border border-line px-3 text-xs font-semibold tracking-wider text-muted uppercase transition hover:border-line-strong hover:text-text"
+			aria-label={t('lang.switch')}
+			title={t('lang.switch')}
+			onclick={() => i18n.toggle()}
+		>
+			{i18n.locale === 'en' ? 'NL' : 'EN'}
+		</button>
+
+		<div
+			class="flex items-center gap-2.5 rounded-full border px-3.5 py-2 text-[13px]
+				{ok ? 'border-ok-line bg-ok-bg text-ok-soft' : 'border-rec-line bg-rec-bg text-rec-soft'}"
+			role="status"
+		>
+			<span class="size-2 rounded-full {ok ? 'bg-ok' : 'bg-rec'}"></span>
+			<span class="font-medium">{label}</span>
+			{#if ok}
+				<span class="hidden font-mono text-xs text-[#6FB58F] sm:inline">
+					OBS {obs.state.obsVersion} · {obs.state.obsUrl}
+				</span>
+			{/if}
+		</div>
 	</div>
 </header>

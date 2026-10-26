@@ -5,6 +5,7 @@
 	 */
 	import { onMount, onDestroy } from 'svelte';
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { i18n, t } from '#lib/i18n/index.svelte.ts';
 	import Header from '#lib/components/Header.svelte';
 	import ConnectionBanner from '#lib/components/ConnectionBanner.svelte';
 	import RecordingCard from '#lib/components/RecordingCard.svelte';
@@ -12,12 +13,20 @@
 	import ActivityLog from '#lib/components/ActivityLog.svelte';
 	import Toast from '#lib/components/Toast.svelte';
 
-	onMount(() => obs.connect());
+	onMount(() => {
+		i18n.init();
+		obs.connect();
+	});
+
+	// Keep the document language in sync for screen readers and spell checkers.
+	$effect(() => {
+		document.documentElement.lang = i18n.locale;
+	});
 	onDestroy(() => obs.disconnect());
 </script>
 
 <svelte:head>
-	<title>OBS Controller</title>
+	<title>{t('app.title')}</title>
 </svelte:head>
 
 <div class="flex min-h-screen flex-col bg-bg text-text">

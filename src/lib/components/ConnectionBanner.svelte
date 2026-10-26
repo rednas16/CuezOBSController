@@ -4,8 +4,18 @@
 	 * by itself; this only explains the situation to the person at the screen.
 	 */
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { t } from '#lib/i18n/index.svelte.ts';
 
 	const show = $derived(obs.stream === 'live' && !obs.connected);
+
+	// The server tells us *why* with a kind; we pick the sentence in our language.
+	const reason = $derived.by(() => {
+		const kind = obs.state.connectionErrorKind ?? 'unreachable';
+		return t(`banner.reason.${kind}`, {
+			url: obs.state.obsUrl,
+			message: obs.state.connectionError ?? ''
+		});
+	});
 </script>
 
 {#if show}
@@ -30,12 +40,11 @@
 		</svg>
 		<div class="flex min-w-0 flex-col gap-1">
 			<span class="text-sm font-semibold text-[#FFD3D5]">
-				{obs.state.connection === 'connecting' ? 'Connecting to OBS…' : 'Can’t reach OBS'}
+				{obs.state.connection === 'connecting' ? t('banner.connecting') : t('banner.unreachable')}
 			</span>
 			<span class="text-[13px] leading-relaxed text-[#E0A3A6]">
-				{obs.state.connectionError ??
-					'Make sure OBS Studio is running and the WebSocket server is enabled under Tools › WebSocket Server Settings.'}
-				Controls are disabled until the connection is back.
+				{reason}
+				{t('banner.controlsDisabled')}
 			</span>
 		</div>
 	</div>

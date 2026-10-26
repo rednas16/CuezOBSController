@@ -22,6 +22,7 @@ const initialState: ObsState = {
 	obsVersion: null,
 	obsUrl: '',
 	connectionError: null,
+	connectionErrorKind: null,
 	recording: {
 		active: false,
 		paused: false,

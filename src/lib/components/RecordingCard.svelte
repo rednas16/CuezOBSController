@@ -4,6 +4,7 @@
 	 * start/stop buttons. Turns red while recording.
 	 */
 	import { obs } from '#lib/stores/obs.svelte.ts';
+	import { t } from '#lib/i18n/index.svelte.ts';
 	import { formatTimecode, formatBytes } from '#lib/format.ts';
 
 	const rec = $derived(obs.state.recording);
@@ -17,17 +18,17 @@
 		: 'border-line bg-surface'}"
 >
 	<div class="flex items-center justify-between gap-3">
-		<h2 class="text-[13px] font-semibold tracking-wider text-muted uppercase">Recording</h2>
+		<h2 class="text-[13px] font-semibold tracking-wider text-muted uppercase">{t('rec.title')}</h2>
 		{#if recording}
 			<span
 				class="flex items-center gap-2 rounded-full bg-[#3A1518] px-2.5 py-1 text-xs font-semibold tracking-wider text-rec-soft"
 			>
 				<span class="size-2 animate-pulse rounded-full bg-rec"></span>
-				{rec.paused ? 'PAUSED' : 'REC'}
+				{rec.paused ? t('rec.paused') : t('rec.badge')}
 			</span>
 		{:else}
 			<span class="rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-soft">
-				{obs.connected ? 'Idle' : 'Unknown'}
+				{obs.connected ? t('rec.idle') : t('rec.unknown')}
 			</span>
 		{/if}
 	</div>
@@ -43,25 +44,23 @@
 			{#if recording}
 				{formatBytes(rec.bytes)}
 			{:else if obs.connected}
-				Not recording
+				{t('rec.notRecording')}
 			{:else}
-				Status unknown
+				{t('rec.statusUnknown')}
 			{/if}
 		</span>
 	</div>
 
 	<div class="flex flex-col gap-1.5 rounded-[10px] border border-line bg-bg px-4 py-3.5">
-		<span class="text-xs text-muted">Output file</span>
+		<span class="text-xs text-muted">{t('rec.outputFile')}</span>
 		{#if rec.outputPath}
 			<span class="font-mono text-sm break-all {recording ? 'text-text' : 'text-text-soft'}">
 				{rec.outputPath}
 			</span>
 		{:else if recording}
-			<span class="font-mono text-sm text-muted"
-				>Recording started in OBS before this app connected; file name unknown.</span
-			>
+			<span class="font-mono text-sm text-muted">{t('rec.fileUnknown')}</span>
 		{:else}
-			<span class="font-mono text-sm text-dim">— no active recording —</span>
+			<span class="font-mono text-sm text-dim">{t('rec.noFile')}</span>
 		{/if}
 	</div>
 
@@ -74,7 +73,7 @@
 			onclick={() => obs.startRecording()}
 		>
 			<span class="size-3 rounded-full bg-current"></span>
-			{recording ? 'Recording…' : 'Start recording'}
+			{recording ? t('rec.inProgress') : t('rec.start')}
 		</button>
 		<button
 			type="button"
@@ -84,7 +83,7 @@
 			onclick={() => obs.stopRecording()}
 		>
 			<span class="size-3 rounded-sm bg-current"></span>
-			Stop recording
+			{t('rec.stop')}
 		</button>
 	</div>
 </section>

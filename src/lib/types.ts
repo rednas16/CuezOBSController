@@ -36,8 +36,10 @@ export interface ObsState {
 	obsVersion: string | null;
 	/** Address we are connecting to, shown in the UI for clarity. */
 	obsUrl: string;
-	/** Human readable reason for the last connection problem, if any. */
+	/** Human readable reason (English) for the last connection problem, if any. */
 	connectionError: string | null;
+	/** Machine readable version of the above, so the UI can translate it. */
+	connectionErrorKind: ConnectionErrorKind | null;
 	recording: RecordingState;
 	/** Names of all scenes, in the order OBS shows them. */
 	scenes: string[];
@@ -45,11 +47,27 @@ export interface ObsState {
 	currentScene: string | null;
 }
 
+/** Why the server cannot talk to OBS. */
+export type ConnectionErrorKind = 'unreachable' | 'auth' | 'lost' | 'other';
+
+/** What happened, for the activity log. The UI translates these. */
+export type ActivityKind =
+	| 'connected'
+	| 'connection_lost'
+	| 'recording_started'
+	| 'recording_stopped'
+	| 'scene_changed'
+	| 'scene_list_changed';
+
 /** One line in the activity log shown in the UI. */
 export interface ActivityEntry {
 	/** ISO timestamp, e.g. "2026-10-23T18:14:02.000Z" */
 	at: string;
 	level: 'info' | 'warn' | 'error';
+	kind: ActivityKind;
+	/** Values to fill into the translated sentence, e.g. { scene: "Intro" }. */
+	params: Record<string, string>;
+	/** English fallback, also used in server logs. */
 	message: string;
 }
 
