@@ -56,6 +56,8 @@ export type ActivityKind =
 	| 'connection_lost'
 	| 'recording_started'
 	| 'recording_stopped'
+	| 'recording_paused'
+	| 'recording_resumed'
 	| 'scene_changed'
 	| 'scene_list_changed';
 
@@ -79,6 +81,9 @@ export type ApiErrorCode =
 	| 'NOT_CONNECTED'
 	| 'ALREADY_RECORDING'
 	| 'NOT_RECORDING'
+	| 'ALREADY_PAUSED'
+	| 'NOT_PAUSED'
+	| 'PAUSE_UNSUPPORTED'
 	| 'UNKNOWN_SCENE'
 	| 'INVALID_REQUEST'
 	| 'OBS_ERROR';

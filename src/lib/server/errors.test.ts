@@ -7,6 +7,9 @@ describe('ObsError', () => {
 		expect(new ObsError('UNKNOWN_SCENE', 'x').status).toBe(400);
 		expect(new ObsError('ALREADY_RECORDING', 'x').status).toBe(409);
 		expect(new ObsError('NOT_RECORDING', 'x').status).toBe(409);
+		expect(new ObsError('ALREADY_PAUSED', 'x').status).toBe(409);
+		expect(new ObsError('NOT_PAUSED', 'x').status).toBe(409);
+		expect(new ObsError('PAUSE_UNSUPPORTED', 'x').status).toBe(501);
 		expect(new ObsError('NOT_CONNECTED', 'x').status).toBe(503);
 		expect(new ObsError('OBS_ERROR', 'x').status).toBe(502);
 	});

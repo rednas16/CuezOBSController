@@ -34,6 +34,8 @@ export const nl: Record<MessageKey, string> = {
 	'rec.start': 'Opname starten',
 	'rec.inProgress': 'Bezig met opnemen…',
 	'rec.stop': 'Opname stoppen',
+	'rec.pause': 'Pauzeren',
+	'rec.resume': 'Hervatten',
 
 	'scenes.title': 'Scènes',
 	'scenes.available': '{n} beschikbaar',
@@ -48,6 +50,8 @@ export const nl: Record<MessageKey, string> = {
 	'activity.connection_lost': 'Verbinding verbroken ({reason})',
 	'activity.recording_started': 'Opname gestart · {file}',
 	'activity.recording_stopped': 'Opname gestopt · {file}',
+	'activity.recording_paused': 'Opname gepauzeerd',
+	'activity.recording_resumed': 'Opname hervat',
 	'activity.scene_changed': 'Scène gewisseld naar “{scene}”',
 	'activity.scene_list_changed': 'Scènelijst bijgewerkt',
 
@@ -57,6 +61,9 @@ export const nl: Record<MessageKey, string> = {
 	'error.NOT_CONNECTED': 'Niet verbonden met OBS',
 	'error.ALREADY_RECORDING': 'Er is al een opname bezig',
 	'error.NOT_RECORDING': 'Er is geen opname om te stoppen',
+	'error.ALREADY_PAUSED': 'De opname is al gepauzeerd',
+	'error.NOT_PAUSED': 'De opname is niet gepauzeerd',
+	'error.PAUSE_UNSUPPORTED': 'OBS kan niet pauzeren met de huidige uitvoerinstellingen',
 	'error.UNKNOWN_SCENE': 'Die scène bestaat niet meer in OBS',
 	'error.INVALID_REQUEST': 'Ongeldig verzoek',
 	'error.OBS_ERROR': 'OBS meldde een fout',

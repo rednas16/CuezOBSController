@@ -61,6 +61,9 @@ class ObsStore {
 	isRecording = $derived(this.state.recording.active);
 	canStart = $derived(this.connected && !this.isRecording && !this.busy);
 	canStop = $derived(this.connected && this.isRecording && !this.busy);
+	isPaused = $derived(this.state.recording.paused);
+	canPause = $derived(this.canStop && !this.isPaused);
+	canResume = $derived(this.canStop && this.isPaused);
 	canSwitchScene = $derived(this.connected && !this.busy);
 
 	private source: EventSource | null = null;
@@ -114,6 +117,14 @@ class ObsStore {
 
 	startRecording() {
 		return this.post('/api/recording/start');
+	}
+
+	pauseRecording() {
+		return this.post('/api/recording/pause');
+	}
+
+	resumeRecording() {
+		return this.post('/api/recording/resume');
 	}
 
 	stopRecording() {

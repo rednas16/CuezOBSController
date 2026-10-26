@@ -75,6 +75,27 @@
 			<span class="size-3 rounded-full bg-current"></span>
 			{recording ? t('rec.inProgress') : t('rec.start')}
 		</button>
+		{#if recording}
+			<button
+				type="button"
+				class="flex h-14 flex-[0_1_140px] items-center justify-center gap-2.5 rounded-xl border border-line-strong bg-surface-2 text-base font-semibold text-text transition
+					hover:border-muted disabled:cursor-not-allowed disabled:opacity-50"
+				disabled={!obs.canPause && !obs.canResume}
+				onclick={() => (obs.isPaused ? obs.resumeRecording() : obs.pauseRecording())}
+			>
+				{#if obs.isPaused}
+					<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+						><path d="M8 5v14l11-7z" /></svg
+					>
+					{t('rec.resume')}
+				{:else}
+					<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"
+						><path d="M6 5h4v14H6zM14 5h4v14h-4z" /></svg
+					>
+					{t('rec.pause')}
+				{/if}
+			</button>
+		{/if}
 		<button
 			type="button"
 			class="flex h-14 flex-[1_1_220px] items-center justify-center gap-2.5 rounded-xl bg-text text-base font-semibold text-bg transition

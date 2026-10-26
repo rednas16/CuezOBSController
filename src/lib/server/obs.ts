@@ -203,8 +203,14 @@ function registerObsEventHandlers() {
 	obs.on('RecordStateChanged', (data) => {
 		log.debug(data, 'RecordStateChanged');
 		const wasActive = state.recording.active;
+		const wasPaused = state.recording.paused;
 		state.recording.active = data.outputActive;
 		state.recording.paused = data.outputState === 'OBS_WEBSOCKET_OUTPUT_PAUSED';
+		if (state.recording.paused && !wasPaused) {
+			addActivity('info', 'recording_paused', {}, 'Recording paused');
+		} else if (data.outputState === 'OBS_WEBSOCKET_OUTPUT_RESUMED' && wasPaused) {
+			addActivity('info', 'recording_resumed', {}, 'Recording resumed');
+		}
 
 		// OBS includes the file path when a recording starts and when it stops.
 		if (data.outputPath) state.recording.outputPath = data.outputPath;
@@ -318,6 +324,44 @@ export async function startRecording(): Promise<void> {
 	try {
 		await obs.call('StartRecord');
 		// The RecordStateChanged event updates `state` and notifies listeners.
+	} catch (err) {
+		throw toObsError(err);
+	}
+}
+
+export async function pauseRecording(): Promise<void> {
+	assertConnected();
+	if (!state.recording.active) {
+		throw new ObsError('NOT_RECORDING', 'There is no recording to pause');
+	}
+	if (state.recording.paused) {
+		throw new ObsError('ALREADY_PAUSED', 'The recording is already paused');
+	}
+	try {
+		await obs.call('PauseRecord');
+	} catch (err) {
+		throw toObsError(err);
+	}
+	// OBS answers "ok" but silently ignores the pause when the recording
+	// shares the streaming encoder (Simple output mode, quality "Same as
+	// stream"). Check what really happened so the UI can explain it.
+	await new Promise((resolve) => setTimeout(resolve, 300));
+	await refreshRecordingStatus();
+	if (!state.recording.paused) {
+		throw new ObsError(
+			'PAUSE_UNSUPPORTED',
+			'OBS cannot pause with the current output settings. In OBS, set Settings › Output › Recording Quality to anything other than "Same as stream".'
+		);
+	}
+}
+
+export async function resumeRecording(): Promise<void> {
+	assertConnected();
+	if (!state.recording.paused) {
+		throw new ObsError('NOT_PAUSED', 'The recording is not paused');
+	}
+	try {
+		await obs.call('ResumeRecord');
 	} catch (err) {
 		throw toObsError(err);
 	}

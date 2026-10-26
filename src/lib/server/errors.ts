@@ -24,7 +24,11 @@ export class ObsError extends Error {
 				return 400;
 			case 'ALREADY_RECORDING':
 			case 'NOT_RECORDING':
+			case 'ALREADY_PAUSED':
+			case 'NOT_PAUSED':
 				return 409; // Conflict: the request clashes with the current state
+			case 'PAUSE_UNSUPPORTED':
+				return 501; // Not implemented: OBS cannot pause with its current output settings
 			case 'NOT_CONNECTED':
 				return 503; // Service unavailable: OBS is not reachable right now
 			default:

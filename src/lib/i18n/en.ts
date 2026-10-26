@@ -35,6 +35,8 @@ export const en = {
 	'rec.start': 'Start recording',
 	'rec.inProgress': 'Recording…',
 	'rec.stop': 'Stop recording',
+	'rec.pause': 'Pause',
+	'rec.resume': 'Resume',
 
 	'scenes.title': 'Scenes',
 	'scenes.available': '{n} available',
@@ -49,6 +51,8 @@ export const en = {
 	'activity.connection_lost': 'Connection lost ({reason})',
 	'activity.recording_started': 'Recording started · {file}',
 	'activity.recording_stopped': 'Recording stopped · {file}',
+	'activity.recording_paused': 'Recording paused',
+	'activity.recording_resumed': 'Recording resumed',
 	'activity.scene_changed': 'Scene changed to “{scene}”',
 	'activity.scene_list_changed': 'Scene list updated',
 
@@ -58,6 +62,9 @@ export const en = {
 	'error.NOT_CONNECTED': 'Not connected to OBS',
 	'error.ALREADY_RECORDING': 'A recording is already in progress',
 	'error.NOT_RECORDING': 'There is no recording to stop',
+	'error.ALREADY_PAUSED': 'The recording is already paused',
+	'error.NOT_PAUSED': 'The recording is not paused',
+	'error.PAUSE_UNSUPPORTED': 'OBS cannot pause with its current output settings',
 	'error.UNKNOWN_SCENE': 'That scene no longer exists in OBS',
 	'error.INVALID_REQUEST': 'Invalid request',
 	'error.OBS_ERROR': 'OBS reported an error',
