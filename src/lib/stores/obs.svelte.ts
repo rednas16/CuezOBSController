@@ -131,19 +131,23 @@ class ObsStore {
 	/**
 	 * Send one action to the API. Resolves to true on success.
 	 * On failure the error is stored in `error` for the UI to display.
+	 *
+	 * Every request is sent as JSON, even without a body. SvelteKit's CSRF
+	 * protection only lets form-like POSTs through when the Origin matches
+	 * exactly; JSON requests are exempt because a cross-site form cannot
+	 * produce them.
 	 */
-	private async post(url: string, body?: object): Promise<boolean> {
+	private async post(url: string, body: object = {}): Promise<boolean> {
 		this.busy = true;
 		this.error = null;
 		try {
 			const res = await fetch(url, {
 				method: 'POST',
-				headers: body ? { 'Content-Type': 'application/json' } : undefined,
-				body: body ? JSON.stringify(body) : undefined
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(body)
 			});
 			if (!res.ok) {
-				const data = (await res.json()) as ApiError;
-				this.error = data.error;
+				this.error = await readError(res);
 				return false;
 			}
 			return true;
@@ -154,6 +158,18 @@ class ObsStore {
 			this.busy = false;
 		}
 	}
+}
+
+/** Read an error response; falls back to plain text when it is not our JSON shape. */
+async function readError(res: Response): Promise<UiError> {
+	const text = await res.text();
+	try {
+		const data = JSON.parse(text) as ApiError;
+		if (data.error?.code) return data.error;
+	} catch {
+		// not JSON
+	}
+	return { code: 'NETWORK', message: text || `HTTP ${res.status}` };
 }
 
 /** The one shared store instance. */
