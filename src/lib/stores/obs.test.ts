@@ -50,7 +50,8 @@ const connectedState: ObsState = {
 
 /** fetch stub: answers /api/status with a snapshot, other URLs via `responses`. */
 const responses = new Map<string, { status: number; body: unknown }>();
-const fetchMock = vi.fn(async (url: string) => {
+const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+	void init; // only inspected by the tests
 	if (url === '/api/status') {
 		return new Response(JSON.stringify({ state: connectedState, activity: [] }));
 	}
