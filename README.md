@@ -26,13 +26,14 @@ Open http://localhost:5173.
 
 ## Scripts
 
-| Command         | What it does                     |
-| --------------- | -------------------------------- |
-| `npm run dev`   | Start the dev server             |
-| `npm run build` | Production build (Node adapter)  |
-| `npm run check` | Type-check Svelte and TypeScript |
-| `npm run lint`  | Prettier + ESLint                |
-| `npm test`      | Unit tests with Vitest           |
+| Command            | What it does                                                        |
+| ------------------ | ------------------------------------------------------------------- |
+| `npm run dev`      | Start the dev server                                                |
+| `npm run build`    | Production build (Node adapter)                                     |
+| `npm run check`    | Type-check Svelte and TypeScript                                    |
+| `npm run lint`     | Prettier + ESLint                                                   |
+| `npm test`         | Unit tests with Vitest                                              |
+| `npm run test:e2e` | End-to-end tests with Playwright against a fake OBS (no OBS needed) |
 
 ## API
 
@@ -52,6 +53,15 @@ Quality must be anything other than "Same as stream". Otherwise the API answers 
 
 Errors come back as `{ "error": { "code", "message" } }` with a fitting HTTP status
 (400 bad request, 409 wrong state, 503 OBS not connected, 502 OBS error).
+
+## Tests
+
+- **Unit tests** (`npm test`): error mapping, formatting helpers, translations and the browser store.
+- **End-to-end tests** (`npm run test:e2e`): Playwright drives the real app in Chromium against
+  `e2e/fake-obs.mjs`, a small server that speaks the obs-websocket v5 protocol (JSON and msgpack).
+  Its message shapes were captured from a real OBS 32.2.2 session (`e2e/fixtures/obs-capture.json`),
+  so the tests cover scene switching, recording, a scene created in OBS, a lost connection and the
+  language switch without OBS being installed. They run in CI on every push.
 
 ## Run with Docker
 
