@@ -10,16 +10,49 @@ network. Built with SvelteKit (Svelte 5 runes), TypeScript and Tailwind CSS.
 
 ## Features
 
-- Start, pause/resume and stop recordings; see the timecode, file size and output file name live
-- Switch scenes with a dropdown or one-click buttons; the current scene is marked **LIVE**
-- Everything updates in real time, also when you click in OBS itself (scenes added, recording
-  started from OBS, …)
-- Clear error handling: the UI explains when OBS is unreachable, when the password is wrong, or
-  when an action does not make sense in the current state, and the server reconnects by itself
-- Dutch and English interface, remembered per browser
-- Responsive: two columns on a desktop, stacked on a phone
-- Docker image and `docker compose` setup
-- Unit tests and end-to-end tests that run without OBS, executed in CI on every push
+What the assignment asked for:
+
+- **Start and stop recordings** from the browser
+- **Switch scenes**, with a **dropdown of the scenes fetched from OBS** plus one-click buttons;
+  the current scene is marked **LIVE**
+- **Current recording file name** shown as soon as OBS reports it
+- **Real-time updates**: timecode, file size, recording state and the scene list follow OBS live,
+  also when you click in OBS itself (bonus)
+- **Svelte 5 runes store** holding the OBS state for all components (bonus)
+- **Dockerfile** and `docker compose` setup (bonus)
+- Error handling and UI feedback: banner when OBS is unreachable or the password is wrong,
+  toasts for rejected actions, buttons disabled based on the real state, automatic reconnect
+
+Extras beyond the assignment:
+
+- **Dutch and English interface** with a switch in the header, remembered per browser
+- **Pause and resume** a recording (see the note under [API](#api) about OBS output settings)
+- **Unit tests** (Vitest) for the server error mapping, formatting helpers, translations and the
+  browser store
+- **End-to-end tests** (Playwright) against a fake OBS, so they run without OBS and in CI
+- **GitHub Actions CI**: lint, type-check, unit tests, build, e2e tests and Docker build on every push
+- Activity log of recent events, timecode in the browser tab title while recording, reduced-motion
+  support, responsive layout for phones
+
+## Assumptions
+
+- **OBS runs on the same machine or the same network** as the app server. The server connects to
+  OBS over its WebSocket API; the browser never talks to OBS directly.
+- **One OBS instance, one program output.** Studio Mode preview and multiple canvases are out of
+  scope.
+- **A trusted network.** The app itself has no login; anyone who can open the page can control
+  OBS. Put it behind authentication before exposing it beyond a studio LAN.
+- **OBS Studio 28 or newer**, which ships obs-websocket protocol v5 (tested with OBS 32.2.2).
+- **Recording settings live in OBS.** The app starts and stops whatever OBS is configured to
+  record; format, folder and encoder are not managed here. Pausing requires an OBS output setting
+  that supports it.
+- **The file name is only known from OBS events.** If a recording was already running before the
+  app connected, the name is shown as unknown rather than guessed.
+- **Node.js 20 or newer** on the machine that runs the app; Docker is optional.
+- **Scenes are identified by name**, as the OBS API does. Renaming a scene in OBS is handled by
+  refreshing the list from the `SceneListChanged` event.
+- The interface language follows the browser language on first visit (Dutch for `nl-*`, English
+  otherwise) and can be changed at any time.
 
 ## Requirements
 
