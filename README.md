@@ -34,13 +34,14 @@ Open http://localhost:5173.
 
 ## API
 
-| Method | Path                   | What it does                                       |
-| ------ | ---------------------- | -------------------------------------------------- |
-| GET    | `/api/status`          | Full snapshot: connection, recording, scenes, log  |
-| GET    | `/api/scenes`          | Scene names and the current program scene          |
-| POST   | `/api/scenes/current`  | Switch scene. Body: `{ "sceneName": "Intro" }`     |
-| POST   | `/api/recording/start` | Start recording                                    |
-| POST   | `/api/recording/stop`  | Stop recording. Answers with the saved file's path |
+| Method | Path                   | What it does                                        |
+| ------ | ---------------------- | --------------------------------------------------- |
+| GET    | `/api/status`          | Full snapshot: connection, recording, scenes, log   |
+| GET    | `/api/events`          | Server-Sent Events stream: live state and log lines |
+| GET    | `/api/scenes`          | Scene names and the current program scene           |
+| POST   | `/api/scenes/current`  | Switch scene. Body: `{ "sceneName": "Intro" }`      |
+| POST   | `/api/recording/start` | Start recording                                     |
+| POST   | `/api/recording/stop`  | Stop recording. Answers with the saved file's path  |
 
 Errors come back as `{ "error": { "code", "message" } }` with a fitting HTTP status
 (400 bad request, 409 wrong state, 503 OBS not connected, 502 OBS error).
