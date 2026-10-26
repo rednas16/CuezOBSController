@@ -39,3 +39,14 @@ html {
 	color: var(--color-text);
 	font-family: var(--font-sans);
 }
+
+/* People who asked their OS for less motion get no pulsing dot and no transitions. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}

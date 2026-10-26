@@ -6,6 +6,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { obs } from '#lib/stores/obs.svelte.ts';
 	import { i18n, t } from '#lib/i18n/index.svelte.ts';
+	import { formatTimecode } from '#lib/format.ts';
 	import Header from '#lib/components/Header.svelte';
 	import ConnectionBanner from '#lib/components/ConnectionBanner.svelte';
 	import RecordingCard from '#lib/components/RecordingCard.svelte';
@@ -22,11 +23,19 @@
 	$effect(() => {
 		document.documentElement.lang = i18n.locale;
 	});
+
+	// While recording, the tab title shows the timecode, so the status is
+	// visible even when the tab is in the background.
+	const title = $derived(
+		obs.isRecording
+			? `● ${formatTimecode(obs.state.recording.timecode)} · ${t('app.title')}`
+			: t('app.title')
+	);
 	onDestroy(() => obs.disconnect());
 </script>
 
 <svelte:head>
-	<title>{t('app.title')}</title>
+	<title>{title}</title>
 </svelte:head>
 
 <div class="flex min-h-screen flex-col bg-bg text-text">

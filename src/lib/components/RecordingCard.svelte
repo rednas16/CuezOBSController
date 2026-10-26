@@ -23,7 +23,7 @@
 			<span
 				class="flex items-center gap-2 rounded-full bg-[#3A1518] px-2.5 py-1 text-xs font-semibold tracking-wider text-rec-soft"
 			>
-				<span class="size-2 animate-pulse rounded-full bg-rec"></span>
+				<span class="size-2 animate-pulse rounded-full bg-rec motion-reduce:animate-none"></span>
 				{rec.paused ? t('rec.paused') : t('rec.badge')}
 			</span>
 		{:else}
